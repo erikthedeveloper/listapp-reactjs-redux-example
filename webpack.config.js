@@ -7,10 +7,17 @@ module.exports = {
     filename: 'bundle.js'
   },
 
+  module: {
+    loaders: [{
+      test: /\.js$/,
+      loaders: ['babel-loader'],
+      exclude: /node_modules/
+    }]
+  },
+
   devServer: {
     contentBase: 'public',
     publicPath: '/assets/',
   }
-
 
 };
