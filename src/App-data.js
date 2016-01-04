@@ -2,45 +2,37 @@ let _uniqueId = 1;
 
 export const uniqueId = () => _uniqueId++;
 
+export const newList = (data) => ({
+  id: uniqueId(),
+  title: '[NEW LIST]',
+  items: [],
+  editing: !data.title,
+  ...data,
+});
+
+export const newItem = (data) => ({
+  id: uniqueId(),
+  name: '[TODO]',
+  completed: false,
+  editing: !data.name,
+  ...data,
+});
+
 export const listsData = [
-  {
+  newList({
     title: 'Party Supplies',
     items: [
-      {
-        name: "Some Item",
-        completed: false,
-        editing: false,
-      },
-      {
-        name: "Editing Item...",
-        completed: false,
-        editing: true,
-      },
-      {
-        name: "Another Item",
-        completed: false,
-        editing: false,
-      },
-      {
-        name: "Completed Item",
-        completed: true,
-        editing: false,
-      },
-    ].map(item => ({...item, id: uniqueId()}))
-  },
-  {
+      newItem({name: 'Some Item'}),
+      newItem({name: 'Editing Item...', editing: true}),
+      newItem({name: 'Another Item'}),
+      newItem({name: 'Completed Item', completed: true}),
+    ]
+  }),
+  newList({
     title: 'Around the House',
     items: [
-      {
-        name: "Sweep",
-        completed: false,
-        editing: false,
-      },
-      {
-        name: "Clean",
-        completed: false,
-        editing: false,
-      },
-    ].map(item => ({...item, id: uniqueId()}))
-  }
-].map(list => ({...list, id: uniqueId()}));
+      newItem({name: 'Sweep'}),
+      newItem({name: 'Clean'}),
+    ]
+  }),
+];
