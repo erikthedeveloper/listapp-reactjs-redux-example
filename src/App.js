@@ -33,8 +33,10 @@ export default class App extends Component {
   }
 
   addList(data = {}) {
-    const lists = this.state.lists.concat([newList(data)]);
+    const list = newList(data);
+    const lists = this.state.lists.concat([list]);
     this.setState({lists});
+    this.selectList(list.id);
   }
 
   deleteList(id) {

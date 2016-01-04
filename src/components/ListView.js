@@ -50,6 +50,30 @@ export default function ListView(props) {
     ? list.items
     : list.items.filter(item => !item.completed);
 
+  return (
+    <div>
+      <ListViewHeader {...{list, updateList, deleteList, navigateBack}} />
+
+      <div className="list-group">
+        {items.map(item => (
+          <ListItem
+            key={item.id}
+            item={item}
+            updateItem={(data) => updateItem(item.id, data)}
+            deleteItem={() => deleteItem(item.id)}
+            />
+        ))}
+      </div>
+
+      <FixedPlusBtn onClick={addItem} />
+      <a onClick={toggleShowCompleted} style={styles.footerLink}>
+        {showCompleted ? 'hide' : 'show'} completed
+      </a>
+    </div>
+  )
+}
+
+function ListViewHeader({list, updateList, deleteList, navigateBack}) {
   const navLeft = list.editing
     ? (
       <Icon
@@ -91,26 +115,7 @@ export default function ListView(props) {
       style={{paddingRight: 15}}
         />
     );
-
   return (
-    <div>
-      <HeaderNav left={navLeft} title={navTitle} right={navRight} />
-
-      <div className="list-group">
-        {items.map(item => (
-          <ListItem
-            key={item.id}
-            item={item}
-            updateItem={(data) => updateItem(item.id, data)}
-            deleteItem={() => deleteItem(item.id)}
-            />
-        ))}
-      </div>
-
-      <FixedPlusBtn onClick={addItem} />
-      <a onClick={toggleShowCompleted} style={styles.footerLink}>
-        {showCompleted ? 'hide' : 'show'} completed
-      </a>
-    </div>
+    <HeaderNav left={navLeft} title={navTitle} right={navRight} />
   )
 }

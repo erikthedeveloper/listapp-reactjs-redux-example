@@ -1,5 +1,22 @@
 import React from 'react';
-import Icon from './Icon';
+
+function Icon({icon}) {
+  return (
+    <span className={`glyphicon glyphicon-${icon}`} />
+  )
+}
+
+function IconButton({icon, onClick, color}) {
+  const className = `text-${color}`;
+  const styles = {
+    padding: '0 5px',
+  };
+  return (
+    <a onClick={onClick} className={className} style={styles}>
+      <Icon icon={icon} />
+    </a>
+  )
+}
 
 export default function ListItem(props) {
   const {item} = props;
@@ -16,40 +33,34 @@ export default function ListItem(props) {
 
 function Item({item, updateItem, deleteItem}) {
   const beginEditing = () => updateItem({editing: true});
+  const completeItem = () => updateItem({completed: true});
   return (
     <div className="list-group-item">
-      <div className="row">
+      <div className="row h5">
         <div className="col-xs-7">
-          <span className="h5" onDoubleClick={beginEditing}>{item.name}</span>
+          <IconButton icon="ok" color="muted" onClick={completeItem} />
+          <span onDoubleClick={beginEditing}>{item.name}</span>
         </div>
         <div className="col-xs-5 text-right">
-          <div className="btn-group">
-            <a onClick={() => updateItem({completed: true})} className="btn btn-xs btn-success"><Icon icon="done" /></a>
-            <a onClick={deleteItem} className="btn btn-xs btn-danger"><Icon icon="delete" /></a>
-            <a onClick={beginEditing} className="btn btn-xs btn-primary"><Icon icon="mode_edit" /></a>
-          </div>
+          <IconButton icon="pencil" color="primary" onClick={beginEditing} />
+          <IconButton icon="remove" color="danger" onClick={deleteItem} />
         </div>
       </div>
     </div>
   )
 }
 
-function CompletedItem({item, updateItem}) {
+function CompletedItem({item, updateItem, deleteItem}) {
+  const uncompleteItem = () => updateItem({completed: false});
   return (
     <div className="list-group-item">
-      <div className="row">
+      <div className="row h5">
         <div className="col-xs-7" style={{opacity: '0.7'}}>
+          <IconButton icon="ok" color="success" onClick={uncompleteItem} />
           <s><span className="h5">{item.name}</span></s>
         </div>
         <div className="col-xs-5 text-right">
-          <div className="btn-group">
-            <a
-              className="btn btn-xs btn-primary"
-              onClick={() => updateItem({completed: false})}
-              >
-              <Icon icon="restore" />
-            </a>
-          </div>
+          <IconButton icon="remove" color="danger" onClick={deleteItem} />
         </div>
       </div>
     </div>
@@ -57,21 +68,26 @@ function CompletedItem({item, updateItem}) {
 }
 
 function EditingItem({item, updateItem}) {
+  const endEditing = () => updateItem({editing: false});
+  const onSubmit = (event) => {
+    event.preventDefault();
+    endEditing();
+  }
   return (
     <div className="list-group-item">
-      <div className="row">
+      <div className="row h5">
         <div className="col-xs-7">
-          <input
-            type="text"
-            className="form-control input-md"
-            value={item.name}
-            onChange={({target: {value}}) => updateItem({name: value})}
-            />
+          <form onSubmit={onSubmit} style={{paddingLeft: '1.5em'}}>
+            <input
+              type="text"
+              className="form-control input-md"
+              value={item.name}
+              onChange={({target: {value}}) => updateItem({name: value})}
+              />
+          </form>
         </div>
         <div className="col-xs-5 text-right">
-          <div className="btn-group">
-            <a onClick={() => updateItem({editing: false})} className="btn btn-xs btn-success"><Icon icon="save" /></a>
-          </div>
+          <IconButton icon="floppy-disk" color="primary" onClick={endEditing} />
         </div>
       </div>
     </div>
