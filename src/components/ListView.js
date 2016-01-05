@@ -7,9 +7,6 @@ import FixedPlusBtn from './FixedPlusBtn';
 import ListItem from './ListItem';
 
 const styles = {
-  largeIcon: {
-    fontSize: 32,
-  },
   footerLink: {
     bottom: 15,
     width: '100%',
@@ -33,7 +30,7 @@ export default function ListView(props) {
       .end((err, res) => {
         const item = res.body;
         const items = list.items.concat([item]);
-        updateList({...list, items});
+        updateList({items});
       })
   };
 
@@ -41,7 +38,7 @@ export default function ListView(props) {
     apiClient.deleteListItem(list.id, id)
       .end((err, res) => {
         const items = list.items.filter(item => item.id !== id);
-        updateList({...list, items});
+        updateList({items});
       });
   }
 
@@ -53,7 +50,7 @@ export default function ListView(props) {
             ? item
             : {...item, ...res.body}
           );
-        updateList({...list, items});
+        updateList({items});
       });
   }
 
@@ -85,47 +82,29 @@ export default function ListView(props) {
 }
 
 function ListViewHeader({list, updateList, deleteList, navigateBack}) {
-  const navLeft = list.editing
-    ? (
-      <Icon
-        icon="delete"
-        onClick={deleteList}
-        />
-    )
-    : (
-      <Icon
-        icon="keyboard_arrow_left"
-        onClick={navigateBack}
-        style={styles.largeIcon}
-        />
-    );
-  const navTitle = list.editing
-    ? (
-      <input
-        type="text"
-        className="form-control input-md"
-        value={list.title}
-        onChange={({target: {value}}) => updateList({...list, title: value})}
-        />
-    )
-    : (
-      list.title
-    );
-  const navRight = list.editing
-    ? (
-      <Icon
-        icon="save"
-        onClick={() => updateList({...list, editing: false})}
-        style={{paddingRight: 15}}
-        />
-    )
-    : (
-      <Icon
-      icon="mode_edit"
-      onClick={() => updateList({...list, editing: true})}
+  const {editing} = list;
+  const navLeft = (
+    <Icon
+      icon={editing ? 'delete' : 'keyboard_arrow_left'}
+      onClick={editing ? deleteList : navigateBack}
+      />
+  );
+  const navTitle = !editing ? list.title : (
+    <input
+      type="text"
+      className="form-control input-md"
+      value={list.title}
+      onChange={({target: {value}}) => updateList({title: value})}
+      />
+  );
+  const navRight = (
+    <Icon
+      icon={editing ? 'save' : 'mode_edit'}
+      onClick={() => updateList({editing: !editing})}
       style={{paddingRight: 15}}
-        />
-    );
+      />
+  );
+
   return (
     <HeaderNav left={navLeft} title={navTitle} right={navRight} />
   )
