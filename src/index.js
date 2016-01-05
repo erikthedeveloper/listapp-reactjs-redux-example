@@ -1,3 +1,8 @@
-var colors = require('./colors');
+import React from 'react';
+import {render} from 'react-dom';
+import App from './App';
 
-console.log(colors);
+render(
+  <App />,
+  document.getElementById('app')
+)
