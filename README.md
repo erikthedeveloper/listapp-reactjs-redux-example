@@ -1,5 +1,7 @@
 ## Building ListApp w/ [React](https://facebook.github.io/react/) and [Redux](http://redux.js.org/)
 
+:warning: This repository is currently in a highly experimental state and will be changing/updating rapidly.
+
 [TODO]: Write **actual** README
 
 In the meantime.
@@ -20,11 +22,11 @@ Also, go checkout out `src/` :)
 
 *Lists View (Home)*
 
-<img width="400" alt="react_listapp_listview" src="https://cloud.githubusercontent.com/assets/1240178/12118724/4d27f6ba-b385-11e5-9150-1f7ae8c4aaf2.png">
+<img width="400" alt="react_listapp_home" src="https://cloud.githubusercontent.com/assets/1240178/12118723/4d27a606-b385-11e5-9c3c-c2163691cfd0.png">
 
 *List View*
 
-<img width="400" alt="react_listapp_home" src="https://cloud.githubusercontent.com/assets/1240178/12118723/4d27a606-b385-11e5-9c3c-c2163691cfd0.png">
+<img width="400" alt="react_listapp_listview" src="https://cloud.githubusercontent.com/assets/1240178/12118724/4d27f6ba-b385-11e5-9150-1f7ae8c4aaf2.png">
 
 
 ### TODO
