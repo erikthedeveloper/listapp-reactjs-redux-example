@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import _ from 'lodash';
-import {listsData, newList} from './App-data';
+import * as apiClient from './http/apiClient';
+import {newList} from './factories';
 
 import ListsView from './components/ListsView';
 import ListView from './components/ListView';
@@ -8,11 +9,20 @@ import ListView from './components/ListView';
 export default class App extends Component {
   constructor(props) {
     super(props);
+    this.requestLists({});
     this.state = {
       activeListId: undefined,
-      lists: listsData,
+      lists: [],
       showCompleted: true,
     }
+  }
+
+  requestLists(query) {
+    apiClient.getLists({})
+      .end((err, res) => {
+        const lists = res.body;
+        this.setState({lists})
+      })
   }
 
   selectList(listId) {
@@ -24,24 +34,32 @@ export default class App extends Component {
   }
 
   updateList(listId, data) {
-    const lists = this.state.lists
-      .map(list => (list.id !== listId)
-        ? list
-        : {...list, ...data}
-      );
-    this.setState({lists});
+    apiClient.updateList(listId, data)
+      .end((err, res) => {
+        const lists = this.state.lists
+          .map(list => (list.id !== listId)
+            ? list
+            : {...list, ...data}
+          );
+        this.setState({lists});
+      });
   }
 
   addList(data = {}) {
-    const list = newList(data);
-    const lists = this.state.lists.concat([list]);
-    this.setState({lists});
-    this.selectList(list.id);
+    apiClient.createList(newList(data))
+      .end((err, res) => {
+        const list = res.body;
+        const lists = this.state.lists.concat([list]);
+        this.setState({lists});
+        this.selectList(list.id);
+      });
   }
 
   deleteList(id) {
-    const lists = this.state.lists.filter(list => list.id !== id);
-    this.setState({lists});
+    apiClient.deleteList(id).end((err, res) => {
+      const lists = this.state.lists.filter(list => list.id !== id);
+      this.setState({lists});
+    });
   }
 
   render() {

@@ -1,5 +1,6 @@
 import React from 'react';
-import {newItem} from '../App-data';
+import * as apiClient from '../http/apiClient';
+import {newItem} from '../factories';
 import HeaderNav from './HeaderNav';
 import Icon from './Icon';
 import FixedPlusBtn from './FixedPlusBtn';
@@ -28,22 +29,32 @@ export default function ListView(props) {
   } = props;
 
   const addItem = (data) => {
-    const items = list.items.concat([newItem(data)]);
-    updateList({...list, items});
+    apiClient.createListItem(list.id, newItem(data))
+      .end((err, res) => {
+        const item = res.body;
+        const items = list.items.concat([item]);
+        updateList({...list, items});
+      })
   };
 
   const deleteItem = (id) => {
-    const items = list.items.filter(item => item.id !== id);
-    updateList({...list, items});
+    apiClient.deleteListItem(list.id, id)
+      .end((err, res) => {
+        const items = list.items.filter(item => item.id !== id);
+        updateList({...list, items});
+      });
   }
 
   const updateItem = (id, data) => {
-    const items = list.items
-      .map(item => (item.id !== id)
-        ? item
-        : {...item, ...data}
-      );
-    updateList({...list, items});
+    apiClient.updateListItem(list.id, id, data)
+      .end((err, res) => {
+        const items = list.items
+          .map(item => (item.id !== id)
+            ? item
+            : {...item, ...res.body}
+          );
+        updateList({...list, items});
+      });
   }
 
   const items = (showCompleted)
@@ -65,7 +76,7 @@ export default function ListView(props) {
         ))}
       </div>
 
-      <FixedPlusBtn onClick={addItem} />
+      <FixedPlusBtn onClick={() => addItem({})} />
       <a onClick={toggleShowCompleted} style={styles.footerLink}>
         {showCompleted ? 'hide' : 'show'} completed
       </a>
