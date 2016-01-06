@@ -1,8 +1,11 @@
+- <TextInput />
+  - Focus on begin editing
+  - Save/Submit on Enter
 - Refactor "editing" out of living in the API
   - Maybe maintain a list of {editing: {lists: [], items: []}}
     - `editing.items = [{id: 1, ...clonedData}]`
     - Edit...
     - Save = Submit data in "editing entry"... update actual upon success
     - Cancel = Clear out "editing entry"
-- Save/Submit on Enter <TextInput />
 - Filters [active, complete, all]
+- Convert Layout/Styling to TODOMVC
