@@ -1,7 +1,15 @@
 import React from 'react';
 import {ListsHeader} from './Header';
 import Icon from './Icon';
-import FixedPlusBtn from './FixedPlusBtn';
+
+const styles = {
+  fixedBtnBtn: {
+    fontSize: 24,
+    bottom: 20,
+    right: 25,
+    position: 'fixed',
+  },
+};
 
 export default function ListsView({lists, selectList, addList}) {
   return (
@@ -12,7 +20,9 @@ export default function ListsView({lists, selectList, addList}) {
           <ListLink list={list} onClick={() => selectList(list.id)} key={list.id} />
         )}
       </div>
-      <FixedPlusBtn onClick={addList} />
+      <a style={styles.fixedBtnBtn} onClick={addList}>
+        <Icon icon="plus" />
+      </a>
     </div>
   )
 }
