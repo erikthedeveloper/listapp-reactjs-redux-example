@@ -7,9 +7,9 @@ import ListsView from './components/ListsView';
 import ListView from './components/ListView';
 
 export default class App extends Component {
+
   constructor(props) {
     super(props);
-    this.requestLists({});
     this.state = {
       activeListId: undefined,
       lists: [],
@@ -17,12 +17,8 @@ export default class App extends Component {
     }
   }
 
-  requestLists(query) {
-    apiClient.getLists({})
-      .end((err, res) => {
-        const lists = res.body;
-        this.setState({lists})
-      })
+  componentDidMount() {
+    this.requestLists();
   }
 
   selectList(listId) {
@@ -31,6 +27,14 @@ export default class App extends Component {
 
   toggleShowCompleted() {
     this.setState({showCompleted: !this.state.showCompleted});
+  }
+
+  requestLists() {
+    apiClient.getLists()
+      .end((err, res) => {
+        const lists = res.body;
+        this.setState({lists})
+      })
   }
 
   updateList(listId, data) {
@@ -69,15 +73,15 @@ export default class App extends Component {
       showCompleted,
     } = this.state;
 
-    if (!activeListId) return (
+    const list = _.find(lists, {id: activeListId});
+
+    if (!list) return (
       <ListsView
         lists={lists}
         selectList={listId => this.selectList(listId)}
         addList={() => this.addList()}
         />
-    )
-
-    const list = _.find(lists, {id: activeListId});
+    );
 
     return (
       <ListView

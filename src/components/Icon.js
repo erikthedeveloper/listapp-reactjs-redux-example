@@ -1,17 +1,8 @@
 import React from 'react';
 
-/**
-  * @deprecated Use Bootstrap instead!
-  */
 export default function Icon({icon, ...otherProps}) {
   return (
-    <i className="material-icons" {...otherProps}>{icon}</i>
-  )
-}
-
-export function Glyphicon({icon}) {
-  return (
-    <span className={`glyphicon glyphicon-${icon}`} />
+    <span className={`glyphicon glyphicon-${icon}`} {...otherProps} />
   )
 }
 
@@ -22,7 +13,7 @@ export function IconButton({icon, onClick, color}) {
   };
   return (
     <a onClick={onClick} className={className} style={styles}>
-      <Glyphicon icon={icon} />
+      <Icon icon={icon} />
     </a>
   )
 }

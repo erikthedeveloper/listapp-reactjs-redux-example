@@ -1,18 +1,28 @@
 import React from 'react';
-import HeaderNav from './HeaderNav';
+import {ListsHeader} from './Header';
 import Icon from './Icon';
-import FixedPlusBtn from './FixedPlusBtn';
+
+const styles = {
+  fixedBtnBtn: {
+    fontSize: 24,
+    bottom: 20,
+    right: 25,
+    position: 'fixed',
+  },
+};
 
 export default function ListsView({lists, selectList, addList}) {
   return (
     <div>
-      <HeaderNav title="ListApp" />
+      <ListsHeader />
       <div className="list-group">
         {lists.map(list =>
           <ListLink list={list} onClick={() => selectList(list.id)} key={list.id} />
         )}
       </div>
-      <FixedPlusBtn onClick={addList} />
+      <a style={styles.fixedBtnBtn} onClick={addList}>
+        <Icon icon="plus" />
+      </a>
     </div>
   )
 }
@@ -22,7 +32,7 @@ function ListLink({list, onClick}) {
   return (
     <div onClick={onClick} key={list.id} className="list-group-item" style={{cursor: 'pointer'}}>
       <div className="pull-right">
-        <Icon icon="keyboard_arrow_right" style={{fontSize: 48}} />
+        <Icon icon="chevron-right" style={{fontSize: 24, paddingTop: 10}} />
       </div>
       <h4 className="list-group-item-heading">{list.title}</h4>
       <p className="list-group-item-text">

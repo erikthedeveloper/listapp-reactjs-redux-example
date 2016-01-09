@@ -28,13 +28,13 @@ let items = [];
 const addListId = listId => item => Object.assign({}, item, {listId});
 items = items.concat([
   newItem({name: 'Some Item'}),
-  newItem({name: 'Editing Item...', editing: true}),
+  newItem({name: 'Editing Item...'}),
   newItem({name: 'Another Item'}),
   newItem({name: 'Completed Item', completed: true}),
 ].map(addListId(lists[0].id)));
 items = items.concat([
   newItem({name: 'Go Shopping'}),
-  newItem({name: 'Rake Leaves', editing: true}),
+  newItem({name: 'Rake Leaves'}),
 ].map(addListId(lists[1].id)));
 
 module.exports = function() {
