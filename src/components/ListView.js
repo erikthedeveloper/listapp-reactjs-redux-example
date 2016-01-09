@@ -1,7 +1,7 @@
 import React from 'react';
 import * as apiClient from '../http/apiClient';
 import {newItem} from '../factories';
-import HeaderNav from './HeaderNav';
+import {ListHeader} from './Header';
 import Icon from './Icon';
 import FixedPlusBtn from './FixedPlusBtn';
 import ListItem from './ListItem';

@@ -1,12 +1,12 @@
 import React from 'react';
-import HeaderNav from './HeaderNav';
+import {ListsHeader} from './Header';
 import Icon from './Icon';
 import FixedPlusBtn from './FixedPlusBtn';
 
 export default function ListsView({lists, selectList, addList}) {
   return (
     <div>
-      <HeaderNav title="ListApp" />
+      <ListsHeader />
       <div className="list-group">
         {lists.map(list =>
           <ListLink list={list} onClick={() => selectList(list.id)} key={list.id} />
