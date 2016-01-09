@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {Component} from 'react';
+import _ from 'lodash';
 import * as apiClient from '../http/apiClient';
 import {newItem} from '../factories';
 import {ListHeader} from './Header';
 import Icon from './Icon';
-import FixedPlusBtn from './FixedPlusBtn';
 import ListItem from './ListItem';
+import TextInput from './TextInput';
 
 const styles = {
   footerLink: {
@@ -13,99 +14,116 @@ const styles = {
     position: 'fixed',
     textAlign: 'center',
   },
-}
+};
 
-export default function ListView(props) {
-  const {
-    list,
-    updateList,
-    deleteList,
-    showCompleted,
-    toggleShowCompleted,
-    navigateBack,
-  } = props;
-
-  const addItem = (data) => {
-    apiClient.createListItem(list.id, newItem(data))
-      .end((err, res) => {
-        const item = res.body;
-        const items = list.items.concat([item]);
-        updateList({items});
-      })
-  };
-
-  const deleteItem = (id) => {
-    apiClient.deleteListItem(list.id, id)
-      .end((err, res) => {
-        const items = list.items.filter(item => item.id !== id);
-        updateList({items});
-      });
+export default class ListView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      editingItems: [
+        {id: 'DRAFT', name: ''}
+      ],
+    }
   }
 
-  const updateItem = (id, data) => {
-    apiClient.updateListItem(list.id, id, data)
-      .end((err, res) => {
-        const items = list.items
-          .map(item => (item.id !== id)
-            ? item
-            : {...item, ...res.body}
-          );
-        updateList({items});
-      });
+  editDraft(id, data) {
+    let {editingItems} = this.state;
+    if (!_.find(editingItems, {id})) {
+      editingItems = editingItems.concat([newItem({id})]);
+    }
+    editingItems = editingItems.map(entry => entry.id !== id
+      ? entry
+      : {...entry, ...data}
+    );
+    this.setState({editingItems});
   }
 
-  const items = (showCompleted)
-    ? list.items
-    : list.items.filter(item => !item.completed);
+  clearDraft(id) {
+    const editingItems = this.state.editingItems
+      .filter(entry => entry.id !== id);
+    this.setState({editingItems});
+  }
 
-  return (
-    <div>
-      <ListViewHeader {...{list, updateList, deleteList, navigateBack}} />
+  getEditItem(id) {
+    return _.find(this.state.editingItems, {id}) || {id};
+  }
 
-      <div className="list-group">
-        {items.map(item => (
-          <ListItem
-            key={item.id}
-            item={item}
-            updateItem={(data) => updateItem(item.id, data)}
-            deleteItem={() => deleteItem(item.id)}
-            />
-        ))}
+  render() {
+    const {
+      list,
+      updateList,
+      deleteList,
+      showCompleted,
+      toggleShowCompleted,
+      navigateBack,
+    } = this.props;
+
+    const addItem = (data) => {
+      apiClient.createListItem(list.id, newItem(data))
+        .end((err, res) => {
+          const item = res.body;
+          const items = list.items.concat([item]);
+          updateList({items});
+          this.clearDraft('DRAFT');
+        })
+    };
+
+    const deleteItem = (id) => {
+      apiClient.deleteListItem(list.id, id)
+        .end((err, res) => {
+          const items = list.items.filter(item => item.id !== id);
+          updateList({items});
+        });
+    };
+
+    const saveItem = (id, data) => {
+      apiClient.updateListItem(list.id, id, data)
+        .end((err, res) => {
+          const items = list.items
+            .map(item => (item.id !== id)
+              ? item
+              : {...item, ...res.body}
+            );
+          this.clearDraft(id);
+          updateList({items});
+        });
+    };
+
+    const visibleItems = (showCompleted)
+      ? list.items
+      : list.items.filter(item => !item.completed);
+
+    return (
+      <div>
+        <ListHeader {...{list, updateList, deleteList, navigateBack}} />
+
+        <div className="list-group">
+          {visibleItems.map(item => (
+            <ListItem
+              key={item.id}
+              item={{...item, ...this.getEditItem(item.id)}}
+              editItem={(data) => this.editDraft(item.id, data)}
+              saveItem={(data) => saveItem(item.id, data)}
+              deleteItem={() => deleteItem(item.id)}
+              />
+          ))}
+
+          <div className="list-group-item">
+            <TextInput
+              value={this.getEditItem('DRAFT').name}
+              onChange={(name) => this.editDraft('DRAFT', {name})}
+              cancel={() => this.editDraft('DRAFT', {name: ''})}
+              save={(name) => addItem({name})}
+              />
+          </div>
+        </div>
+
+        <a onClick={toggleShowCompleted} style={styles.footerLink}>
+          {showCompleted ? 'hide' : 'show'} completed
+        </a>
       </div>
+    );
 
-      <FixedPlusBtn onClick={() => addItem({})} />
-      <a onClick={toggleShowCompleted} style={styles.footerLink}>
-        {showCompleted ? 'hide' : 'show'} completed
-      </a>
-    </div>
-  )
-}
+  }
 
-function ListViewHeader({list, updateList, deleteList, navigateBack}) {
-  const {editing} = list;
-  const navLeft = (
-    <Icon
-      icon={editing ? 'delete' : 'keyboard_arrow_left'}
-      onClick={editing ? deleteList : navigateBack}
-      />
-  );
-  const navTitle = !editing ? list.title : (
-    <input
-      type="text"
-      className="form-control input-md"
-      value={list.title}
-      onChange={({target: {value}}) => updateList({title: value})}
-      />
-  );
-  const navRight = (
-    <Icon
-      icon={editing ? 'save' : 'mode_edit'}
-      onClick={() => updateList({editing: !editing})}
-      style={{paddingRight: 15}}
-      />
-  );
-
-  return (
-    <HeaderNav left={navLeft} title={navTitle} right={navRight} />
-  )
 }
