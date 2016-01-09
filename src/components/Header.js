@@ -1,7 +1,7 @@
 import React from 'react';
 import Icon from './Icon';
 
-export function ListsHeader({left, title, right}) {
+export function ListsHeader() {
   return (
     <Header title="ListApp" />
   );
