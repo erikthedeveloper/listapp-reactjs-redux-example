@@ -11,7 +11,7 @@ export function ListHeader({list, updateList, deleteList, navigateBack}) {
   const {editing} = list;
   const navLeft = (
     <Icon
-      icon={editing ? 'delete' : 'keyboard_arrow_left'}
+      icon={editing ? 'trash' : 'chevron-left'}
       onClick={editing ? deleteList : navigateBack}
       />
   );
@@ -21,13 +21,14 @@ export function ListHeader({list, updateList, deleteList, navigateBack}) {
       className="form-control input-md"
       value={list.title}
       onChange={({target: {value}}) => updateList({title: value})}
+      autoFocus
       />
   );
   const navRight = (
     <Icon
-      icon={editing ? 'save' : 'mode_edit'}
+      icon={editing ? 'floppy-save' : 'pencil'}
       onClick={() => updateList({editing: !editing})}
-      style={{paddingRight: 15}}
+      style={{fontSize: 24, paddingRight: 15}}
       />
   );
 

@@ -22,7 +22,7 @@ function ListLink({list, onClick}) {
   return (
     <div onClick={onClick} key={list.id} className="list-group-item" style={{cursor: 'pointer'}}>
       <div className="pull-right">
-        <Icon icon="keyboard_arrow_right" style={{fontSize: 48}} />
+        <Icon icon="chevron-right" style={{fontSize: 24, paddingTop: 10}} />
       </div>
       <h4 className="list-group-item-heading">{list.title}</h4>
       <p className="list-group-item-text">

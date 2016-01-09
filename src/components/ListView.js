@@ -3,7 +3,6 @@ import _ from 'lodash';
 import * as apiClient from '../http/apiClient';
 import {newItem} from '../factories';
 import {ListHeader} from './Header';
-import Icon from './Icon';
 import ListItem from './ListItem';
 import TextInput from './TextInput';
 
