@@ -6,41 +6,49 @@ import {newList} from './factories';
 import ListsView from './components/ListsView';
 import ListView from './components/ListView';
 
-function App(props) {
-  const {
-    lists,
-    activeListId,
-    showCompleted,
-    addList,
-    updateList,
-    deleteList,
-    selectList,
-    toggleShowCompleted,
-  } = props;
+class App extends Component {
 
-  const list = _.find(lists, {id: activeListId});
+  componentDidMount() {
+    this.props.requestLists();
+  }
 
-  if (!list) return (
-    <ListsView
-      lists={lists}
-      selectList={selectList}
-      addList={() => addList({})}
-      />
-  );
+  render() {
+    const {
+      lists,
+      activeListId,
+      showCompleted,
+      addList,
+      updateList,
+      deleteList,
+      selectList,
+      toggleShowCompleted,
+    } = this.props;
 
-  return (
-    <ListView
-      list={list}
-      updateList={(data) => updateList(list.id, data)}
-      deleteList={() => {
+    const list = _.find(lists, {id: activeListId});
+
+    if (!list) return (
+      <ListsView
+        lists={lists}
+        selectList={selectList}
+        addList={() => addList({})}
+        />
+    );
+
+    return (
+      <ListView
+        list={list}
+        updateList={(data) => updateList(list.id, data)}
+        deleteList={() => {
           selectList();
           deleteList(list.id);
         }}
-      showCompleted={showCompleted}
-      toggleShowCompleted={toggleShowCompleted}
-      navigateBack={()=> selectList()}
-      />
-  )
+        showCompleted={showCompleted}
+        toggleShowCompleted={toggleShowCompleted}
+        navigateBack={()=> selectList()}
+        />
+    )
+  }
+
 }
 
 export default class AppContainer extends Component {
@@ -52,10 +60,6 @@ export default class AppContainer extends Component {
       lists: [],
       showCompleted: true,
     }
-  }
-
-  componentDidMount() {
-    this.requestLists();
   }
 
   selectList(listId) {
@@ -114,6 +118,7 @@ export default class AppContainer extends Component {
 
     return createElement(App, {
       lists,
+      requestLists: this.requestLists.bind(this),
       activeListId,
       showCompleted,
       addList: this.addList.bind(this),
