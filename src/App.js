@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, createElement} from 'react';
 import _ from 'lodash';
 import * as apiClient from './http/apiClient';
 import {newList} from './factories';
@@ -6,7 +6,52 @@ import {newList} from './factories';
 import ListsView from './components/ListsView';
 import ListView from './components/ListView';
 
-export default class App extends Component {
+class App extends Component {
+
+  componentDidMount() {
+    this.props.requestLists();
+  }
+
+  render() {
+    const {
+      lists,
+      activeListId,
+      showCompleted,
+      addList,
+      updateList,
+      deleteList,
+      selectList,
+      toggleShowCompleted,
+    } = this.props;
+
+    const list = _.find(lists, {id: activeListId});
+
+    if (!list) return (
+      <ListsView
+        lists={lists}
+        selectList={selectList}
+        addList={() => addList({})}
+        />
+    );
+
+    return (
+      <ListView
+        list={list}
+        updateList={(data) => updateList(list.id, data)}
+        deleteList={() => {
+          selectList();
+          deleteList(list.id);
+        }}
+        showCompleted={showCompleted}
+        toggleShowCompleted={toggleShowCompleted}
+        navigateBack={()=> selectList()}
+        />
+    )
+  }
+
+}
+
+export default class AppContainer extends Component {
 
   constructor(props) {
     super(props);
@@ -15,10 +60,6 @@ export default class App extends Component {
       lists: [],
       showCompleted: true,
     }
-  }
-
-  componentDidMount() {
-    this.requestLists();
   }
 
   selectList(listId) {
@@ -75,26 +116,17 @@ export default class App extends Component {
 
     const list = _.find(lists, {id: activeListId});
 
-    if (!list) return (
-      <ListsView
-        lists={lists}
-        selectList={listId => this.selectList(listId)}
-        addList={() => this.addList()}
-        />
-    );
+    return createElement(App, {
+      lists,
+      requestLists: this.requestLists.bind(this),
+      activeListId,
+      showCompleted,
+      addList: this.addList.bind(this),
+      updateList: this.updateList.bind(this),
+      deleteList: this.deleteList.bind(this),
+      selectList: this.selectList.bind(this),
+      toggleShowCompleted: this.toggleShowCompleted.bind(this),
+    });
 
-    return (
-      <ListView
-        list={list}
-        updateList={(data) => this.updateList(list.id, data)}
-        deleteList={() => {
-          this.selectList();
-          this.deleteList(list.id);
-        }}
-        showCompleted={showCompleted}
-        toggleShowCompleted={() => this.toggleShowCompleted()}
-        navigateBack={listId => this.selectList()}
-        />
-    )
   }
 }
