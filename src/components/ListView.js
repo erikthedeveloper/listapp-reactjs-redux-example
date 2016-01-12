@@ -4,7 +4,7 @@ import * as apiClient from '../http/apiClient';
 import {newItem} from '../factories';
 import {ListHeader} from './Header';
 import ListItem from './ListItem';
-import TextInput from './TextInput';
+import EditingText from './EditingText';
 
 const styles = {
   footerLink: {
@@ -54,7 +54,7 @@ function ListView(props) {
         ))}
 
         <div className="list-group-item">
-          <TextInput
+          <EditingText
             value={getDraft(DRAFT_ID).name}
             onChange={(name) => updateDraft(DRAFT_ID, {name})}
             cancel={() => updateDraft(DRAFT_ID, {name: ''})}

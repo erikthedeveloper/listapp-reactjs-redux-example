@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconButton } from './Icon';
-import TextInput from './TextInput';
+import EditingText from './EditingText';
 
 const styles = {
   lineThrough: {
@@ -18,7 +18,7 @@ export default function ListItem(props) {
 
   if (editing) return (
     <div className="list-group-item">
-      <TextInput
+      <EditingText
         value={item.name}
         onChange={value => editItem({name: value})}
         cancel={toggleEditing}
