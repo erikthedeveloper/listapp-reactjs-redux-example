@@ -8,7 +8,7 @@
     "server:api": "json-server json-server-db.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "build:watch": "webpack-dev-server --inline"
+    "build:watch": "webpack-dev-server --d --inline"
   },
   "keywords": [],
   "author": "",
