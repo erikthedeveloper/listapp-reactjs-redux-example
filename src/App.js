@@ -68,16 +68,20 @@ export default class AppContainer extends Component {
 
   updateList(listId, data) {
     // TODO: This is TEMP to prevent sending excessive API calls for item related operations
-    // Long story short... this needs to be gutted out :)
-    apiClient.updateList(listId, data)
-      .end((err, res) => {
-        const lists = this.state.lists
-          .map(list => (list.id !== listId)
-            ? list
-            : {...list, ...data}
-          );
-        this.setState({lists});
-      });
+    // Long story short... this needs to be revisited and gut out :)
+    const patchListsState = () => {
+      const lists = this.state.lists
+        .map(list => (list.id !== listId) ? list : {...list, ...data});
+      this.setState({lists});
+    };
+
+    const {title} = data;
+    if (title) {
+      apiClient.updateList(listId, {title})
+        .end(patchListsState);
+    } else {
+      patchListsState();
+    }
   }
 
   addList(data = {}) {
