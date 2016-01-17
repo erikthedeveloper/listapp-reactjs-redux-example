@@ -13,38 +13,26 @@ class App extends Component {
   }
 
   render() {
-    const {
-      lists,
-      activeListId,
-      showCompleted,
-      addList,
-      updateList,
-      deleteList,
-      selectList,
-      toggleShowCompleted,
-    } = this.props;
-
-    const list = _.find(lists, {id: activeListId});
+    const {props} = this;
+    const list = _.find(props.lists, {id: props.activeListId});
 
     if (!list) return (
       <ListsView
-        lists={lists}
-        selectList={selectList}
-        addList={() => addList({})}
+        lists={props.lists}
+        selectList={props.selectList}
+        addList={() => props.addList({})}
         />
     );
 
     return (
       <ListView
         list={list}
-        updateList={(data) => updateList(list.id, data)}
+        updateList={(data) => props.updateList(list.id, data)}
         deleteList={() => {
-          selectList();
-          deleteList(list.id);
+          props.selectList();
+          props.deleteList(list.id);
         }}
-        showCompleted={showCompleted}
-        toggleShowCompleted={toggleShowCompleted}
-        navigateBack={()=> selectList()}
+        navigateBack={()=> props.selectList()}
         />
     )
   }
@@ -58,16 +46,16 @@ export default class AppContainer extends Component {
     this.state = {
       activeListId: undefined,
       lists: [],
-      showCompleted: true,
-    }
+    };
+    this.requestLists = this.requestLists.bind(this);
+    this.addList = this.addList.bind(this);
+    this.updateList = this.updateList.bind(this);
+    this.deleteList = this.deleteList.bind(this);
+    this.selectList = this.selectList.bind(this);
   }
 
   selectList(listId) {
     this.setState({activeListId: listId})
-  }
-
-  toggleShowCompleted() {
-    this.setState({showCompleted: !this.state.showCompleted});
   }
 
   requestLists() {
@@ -79,6 +67,8 @@ export default class AppContainer extends Component {
   }
 
   updateList(listId, data) {
+    // TODO: This is TEMP to prevent sending excessive API calls for item related operations
+    // Long story short... this needs to be gutted out :)
     apiClient.updateList(listId, data)
       .end((err, res) => {
         const lists = this.state.lists
@@ -111,21 +101,16 @@ export default class AppContainer extends Component {
     const {
       activeListId,
       lists,
-      showCompleted,
     } = this.state;
 
-    const list = _.find(lists, {id: activeListId});
-
     return createElement(App, {
-      lists,
-      requestLists: this.requestLists.bind(this),
       activeListId,
-      showCompleted,
-      addList: this.addList.bind(this),
-      updateList: this.updateList.bind(this),
-      deleteList: this.deleteList.bind(this),
-      selectList: this.selectList.bind(this),
-      toggleShowCompleted: this.toggleShowCompleted.bind(this),
+      selectList: this.selectList,
+      lists,
+      requestLists: this.requestLists,
+      addList: this.addList,
+      updateList: this.updateList,
+      deleteList: this.deleteList,
     });
 
   }
