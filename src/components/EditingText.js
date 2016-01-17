@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 const ESCAPE = 27;
 const ENTER = 13;
 
-export default class TextInput extends Component {
+export default class EditingText extends Component {
   componentDidMount() {
     this.focus();
   }

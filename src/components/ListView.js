@@ -4,7 +4,7 @@ import * as apiClient from '../http/apiClient';
 import {newItem} from '../factories';
 import {ListHeader} from './Header';
 import ListItem from './ListItem';
-import TextInput from './TextInput';
+import EditingText from './EditingText';
 
 const styles = {
   footerLink: {
@@ -15,7 +15,7 @@ const styles = {
   },
 };
 
-const DRAFT_ID = 'DRAFT_ITEM';
+const DRAFT_ID = 'item.DRAFT';
 
 function ListView(props) {
   const {
@@ -43,18 +43,22 @@ function ListView(props) {
       <ListHeader {...{list, updateList, deleteList, navigateBack}} />
 
       <div className="list-group">
-        {visibleItems.map(item => (
-          <ListItem
-            key={item.id}
-            item={{...item, ...getDraft(item.id)}}
-            editItem={(data) => updateDraft(item.id, data)}
-            saveItem={(data) => saveItem(item.id, data)}
-            deleteItem={() => deleteItem(item.id)}
-            />
-        ))}
+        {visibleItems.map(item => {
+          const draft = {...item, ...getDraft(`item.${item.id}`)};
+          return (
+            <ListItem
+              key={item.id}
+              item={item}
+              saveItem={(data) => saveItem(item.id, data)}
+              deleteItem={() => deleteItem(item.id)}
+              draft={draft}
+              updateDraft={(data) => updateDraft(`item.${item.id}`, data)}
+              />
+          );
+        })}
 
         <div className="list-group-item">
-          <TextInput
+          <EditingText
             value={getDraft(DRAFT_ID).name}
             onChange={(name) => updateDraft(DRAFT_ID, {name})}
             cancel={() => updateDraft(DRAFT_ID, {name: ''})}
@@ -79,12 +83,24 @@ export default class ListViewContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      showCompleted: true,
       drafts: [
         {id: DRAFT_ID, name: ''}
       ],
-    }
+    };
+
+    this.saveItem = this.saveItem.bind(this);
+    this.deleteItem = this.deleteItem.bind(this);
+    this.addItem = this.addItem.bind(this);
+    this.updateDraft = this.updateDraft.bind(this);
+    this.toggleShowCompleted = this.toggleShowCompleted.bind(this);
   }
 
+  toggleShowCompleted() {
+    this.setState({showCompleted: !this.state.showCompleted});
+  }
+
+  // TODO: Consolidate/centralize this...
   updateDraft(id, data) {
     let {drafts} = this.state;
     if (!_.find(drafts, {id})) {
@@ -137,14 +153,13 @@ export default class ListViewContainer extends Component {
 
   render() {
     const {
+      showCompleted,
       drafts,
     } = this.state;
     const {
       list,
       updateList,
       deleteList,
-      showCompleted,
-      toggleShowCompleted,
       navigateBack,
     } = this.props;
 
@@ -158,13 +173,13 @@ export default class ListViewContainer extends Component {
       list,
       updateList,
       deleteList,
-      saveItem: this.saveItem.bind(this),
-      deleteItem: this.deleteItem.bind(this),
-      addItem: this.addItem.bind(this),
+      saveItem: this.saveItem,
+      deleteItem: this.deleteItem,
+      addItem: this.addItem,
       drafts,
-      updateDraft: this.updateDraft.bind(this),
+      updateDraft: this.updateDraft,
       showCompleted,
-      toggleShowCompleted,
+      toggleShowCompleted: this.toggleShowCompleted,
       navigateBack,
     });
 
