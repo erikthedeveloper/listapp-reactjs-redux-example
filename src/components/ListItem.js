@@ -13,18 +13,14 @@ function ListItem(props) {
   const {completed} = item;
 
   const toggleCompleted = () => props.saveItem({completed: !completed});
-  const handleSave = (name) => {
-    props.saveItem({name});
-    props.toggleEditing();
-  };
 
   if (props.editing) return (
     <div className="list-group-item">
       <EditingText
-        value={props.draft.name}
-        onChange={name => props.updateDraft({name})}
-        cancel={props.cancelEdit}
-        save={handleSave}
+        value={props.draft}
+        onChange={props.updateDraft}
+        cancel={props.toggleEditing}
+        save={() => props.saveItem({name: props.draft})}
         />
     </div>
   );
@@ -53,10 +49,17 @@ class ListItemContainer extends Component {
 
   constructor(props) {
     super(props);
-    this.toggleEditing = this.toggleEditing.bind(this);
-    this.cancelEdit = this.cancelEdit.bind(this);
     this.state = {
       editing: false,
+      draft: props.item.name,
+    };
+    this.toggleEditing = this.toggleEditing.bind(this);
+    this.updateDraft = this.updateDraft.bind(this);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.item.name !== this.props.item.name) {
+      this.setState({editing: false});
     }
   }
 
@@ -64,16 +67,16 @@ class ListItemContainer extends Component {
     this.setState({editing: !this.state.editing});
   }
 
-  cancelEdit() {
-    this.toggleEditing();
-    this.props.updateDraft(this.props.item);
+  updateDraft(draft) {
+    this.setState({draft});
   }
 
   render() {
     const props = {
+      draft: this.state.draft,
+      updateDraft: this.updateDraft,
       editing: this.state.editing,
       toggleEditing: this.toggleEditing,
-      cancelEdit: this.cancelEdit,
       ...this.props,
     };
     return <ListItem {...props} />

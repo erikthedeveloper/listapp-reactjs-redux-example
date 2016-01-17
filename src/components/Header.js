@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {Component} from 'react';
 import Icon from './Icon';
+import EditingText from './EditingText';
 
 export function ListsHeader() {
   return (
@@ -7,27 +8,28 @@ export function ListsHeader() {
   );
 }
 
-export function ListHeader({list, updateList, deleteList, navigateBack}) {
-  const {editing} = list;
+function ListHeaderShell(props) {
+  const {list, editing, toggleEditing, draft, updateDraft} = props;
   const navLeft = (
     <Icon
       icon={editing ? 'trash' : 'chevron-left'}
-      onClick={editing ? deleteList : navigateBack}
+      onClick={editing ? props.deleteList : props.navigateBack}
       />
   );
-  const navTitle = !editing ? list.title : (
-    <input
-      type="text"
-      className="form-control input-md"
-      value={list.title}
-      onChange={({target: {value}}) => updateList({title: value})}
-      autoFocus
+  const navTitle = !editing ? (
+    <span onDoubleClick={toggleEditing}>{list.title}</span>
+  ) : (
+    <EditingText
+      value={draft}
+      onChange={updateDraft}
+      save={() => props.updateList({title: draft})}
+      cancel={toggleEditing}
       />
   );
   const navRight = (
     <Icon
       icon={editing ? 'floppy-save' : 'pencil'}
-      onClick={() => updateList({editing: !editing})}
+      onClick={toggleEditing}
       style={{fontSize: 24, paddingRight: 15}}
       />
   );
@@ -35,6 +37,45 @@ export function ListHeader({list, updateList, deleteList, navigateBack}) {
   return (
     <Header left={navLeft} title={navTitle} right={navRight} />
   )
+}
+
+export class ListHeader extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      draft: props.list.title,
+      editing: false,
+    };
+    this.updateDraft = this.updateDraft.bind(this);
+    this.toggleEditing = this.toggleEditing.bind(this);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.list.title !== this.props.list.title) {
+      this.setState({editing: false});
+    }
+  }
+
+  toggleEditing() {
+    this.setState({editing: !this.state.editing});
+  }
+
+  updateDraft(draft) {
+    this.setState({draft});
+  }
+
+  render() {
+    return (
+      <ListHeaderShell
+        draft={this.state.draft}
+        updateDraft={this.updateDraft}
+        editing={this.state.editing}
+        toggleEditing={this.toggleEditing}
+        {...this.props}
+        />
+    );
+  }
 }
 
 function Header({left, title, right}) {
