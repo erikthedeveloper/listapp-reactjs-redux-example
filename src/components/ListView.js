@@ -1,4 +1,4 @@
-import React, {Component, createElement} from 'react';
+import React, {Component} from 'react';
 import * as apiClient from '../http/apiClient';
 import {newItem} from '../factories';
 import {ListHeader} from './Header';
@@ -132,30 +132,21 @@ export default class ListViewContainer extends Component {
 
   render() {
     const {showCompleted, editingList} = this.state;
-    const {list, updateList, deleteList, navigateBack} = this.props;
 
-    // Rather than fiddling with JSX to pass down an object
-    //  Example <ListView {...{list, updateList, /* ... */}} />
-    // or
-    //  Example <ListView list={list} updateList={updateList}, /* ... */}} />
-    // We can make use of the fact that the JSX de-sugars to createElement which accepts props as the 2nd argument
-    // See: https://facebook.github.io/react/docs/displaying-data.html#react-without-jsx
-    return createElement(ListView, {
-      list,
-      updateList,
-      deleteList,
+    const props = {
+      showCompleted,
+      toggleShowCompleted: this.toggleShowCompleted,
+      editingList,
+      toggleEditingList: this.toggleEditingList,
       saveItem: this.saveItem,
       deleteItem: this.deleteItem,
       addItem: this.addItem,
-      showCompleted,
-      toggleShowCompleted: this.toggleShowCompleted,
-      navigateBack,
-      editingList,
-      toggleEditingList: this.toggleEditingList,
       itemDraft: this.state.itemDraft,
       updateItemDraft: this.updateItemDraft.bind(this),
-    });
+      ...this.props,
+    };
 
+    return <ListView {...props} />;
   }
 
 }
