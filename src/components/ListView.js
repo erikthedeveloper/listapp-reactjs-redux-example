@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import * as apiClient from '../http/apiClient';
+import request from '../http/request';
 import {newItem} from '../factories';
 import {ListHeader} from './Header';
 import ListItem from './ListItem';
@@ -100,7 +100,8 @@ export default class ListViewContainer extends Component {
 
   addItem(data) {
     const {list, updateList} = this.props;
-    apiClient.createListItem(list.id, newItem(data))
+    request('POST', `/lists/${list.id}/items`)
+      .send(newItem(data))
       .end((err, res) => {
         const item = res.body;
         const items = list.items.concat([item]);
@@ -110,7 +111,7 @@ export default class ListViewContainer extends Component {
 
   deleteItem(id) {
     const {list, updateList} = this.props;
-    apiClient.deleteListItem(list.id, id)
+    request('DELETE', `/items/${id}`)
       .end((err, res) => {
         const items = list.items.filter(item => item.id !== id);
         updateList({items});
@@ -119,7 +120,8 @@ export default class ListViewContainer extends Component {
 
   saveItem(id, data) {
     const {list, updateList} = this.props;
-    apiClient.updateListItem(list.id, id, data)
+    request('PATCH', `/items/${id}`)
+      .send(data)
       .end((err, res) => {
         const items = list.items
           .map(item => (item.id !== id)

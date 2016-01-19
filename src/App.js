@@ -1,6 +1,6 @@
 import React, {Component, createElement} from 'react';
 import _ from 'lodash';
-import * as apiClient from './http/apiClient';
+import request from './http/request';
 import {newList} from './factories';
 
 import ListsView from './components/ListsView';
@@ -59,7 +59,8 @@ export default class AppContainer extends Component {
   }
 
   requestLists() {
-    apiClient.getLists()
+    request('GET', '/lists')
+      .query({_embed: 'items'})
       .end((err, res) => {
         const lists = res.body;
         this.setState({lists})
@@ -77,7 +78,8 @@ export default class AppContainer extends Component {
 
     const {title} = data;
     if (title) {
-      apiClient.updateList(listId, {title})
+      request('PATCH', `/lists/${listId}`)
+        .send({title})
         .end(patchListsState);
     } else {
       patchListsState();
@@ -85,7 +87,8 @@ export default class AppContainer extends Component {
   }
 
   addList(data = {}) {
-    apiClient.createList(newList(data))
+    request('POST', '/lists')
+      .send(newList(data))
       .end((err, res) => {
         const list = res.body;
         const lists = this.state.lists.concat([list]);
@@ -95,7 +98,7 @@ export default class AppContainer extends Component {
   }
 
   deleteList(id) {
-    apiClient.deleteList(id).end((err, res) => {
+    request('DELETE', `/lists/${id}`).end((err, res) => {
       const lists = this.state.lists.filter(list => list.id !== id);
       this.setState({lists});
     });
