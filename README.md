@@ -1,6 +1,6 @@
 ## Building ListApp w/ [React](https://facebook.github.io/react/) and [Redux](http://redux.js.org/)
 
-:warning: This repository is currently in a highly experimental state and will be changing/updating rapidly.
+**Code Review, Contributions, and Feedback Welcome** :)
 
 [TODO]: Write **actual** README
 
@@ -15,23 +15,14 @@ Also, go checkout out `src/` :)
 ### Current State
 
 - Full CRUD from HTTP API for `lists` and `items`
-- No error handling :sweat_smile:
-- No Redux. All just simple state (all managed from `<App />`)
+- No Redux. All just simple/minimal React.
 - Stateless components and such...
 - _Note: The intention (at this point) is absolute quick and dirty_
 
 *Lists View (Home)*
 
-<img width="400" alt="react_listapp_home" src="https://cloud.githubusercontent.com/assets/1240178/12118723/4d27a606-b385-11e5-9c3c-c2163691cfd0.png">
+![image](https://cloud.githubusercontent.com/assets/1240178/12218108/a7ae6204-b6d2-11e5-8eef-22aeed2dd4f9.png)
 
 *List View*
 
-<img width="400" alt="react_listapp_listview" src="https://cloud.githubusercontent.com/assets/1240178/12118724/4d27f6ba-b385-11e5-9150-1f7ae8c4aaf2.png">
-
-
-### TODO
-- Introduce Redux
-- Refactor quick and dirty API interactions
-- ... Redux
-- ... Testing
-- ... Redux
+![image](https://cloud.githubusercontent.com/assets/1240178/12218111/b5b91d1c-b6d2-11e5-90a6-3d2563962bf9.png)
