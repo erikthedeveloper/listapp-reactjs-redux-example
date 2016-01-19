@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, createElement} from 'react';
 import _ from 'lodash';
 import * as apiClient from './http/apiClient';
 import {newList} from './factories';
@@ -6,27 +6,56 @@ import {newList} from './factories';
 import ListsView from './components/ListsView';
 import ListView from './components/ListView';
 
-export default class App extends Component {
+class App extends Component {
+
+  componentDidMount() {
+    this.props.requestLists();
+  }
+
+  render() {
+    const {props} = this;
+    const list = _.find(props.lists, {id: props.activeListId});
+
+    if (!list) return (
+      <ListsView
+        lists={props.lists}
+        selectList={props.selectList}
+        addList={() => props.addList({})}
+        />
+    );
+
+    return (
+      <ListView
+        list={list}
+        updateList={(data) => props.updateList(list.id, data)}
+        deleteList={() => {
+          props.selectList();
+          props.deleteList(list.id);
+        }}
+        navigateBack={()=> props.selectList()}
+        />
+    )
+  }
+
+}
+
+export default class AppContainer extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
       activeListId: undefined,
       lists: [],
-      showCompleted: true,
-    }
-  }
-
-  componentDidMount() {
-    this.requestLists();
+    };
+    this.requestLists = this.requestLists.bind(this);
+    this.addList = this.addList.bind(this);
+    this.updateList = this.updateList.bind(this);
+    this.deleteList = this.deleteList.bind(this);
+    this.selectList = this.selectList.bind(this);
   }
 
   selectList(listId) {
     this.setState({activeListId: listId})
-  }
-
-  toggleShowCompleted() {
-    this.setState({showCompleted: !this.state.showCompleted});
   }
 
   requestLists() {
@@ -38,15 +67,21 @@ export default class App extends Component {
   }
 
   updateList(listId, data) {
-    apiClient.updateList(listId, data)
-      .end((err, res) => {
-        const lists = this.state.lists
-          .map(list => (list.id !== listId)
-            ? list
-            : {...list, ...data}
-          );
-        this.setState({lists});
-      });
+    // TODO: This is TEMP to prevent sending excessive API calls for item related operations
+    // Long story short... this needs to be revisited and gut out :)
+    const patchListsState = () => {
+      const lists = this.state.lists
+        .map(list => (list.id !== listId) ? list : {...list, ...data});
+      this.setState({lists});
+    };
+
+    const {title} = data;
+    if (title) {
+      apiClient.updateList(listId, {title})
+        .end(patchListsState);
+    } else {
+      patchListsState();
+    }
   }
 
   addList(data = {}) {
@@ -70,31 +105,17 @@ export default class App extends Component {
     const {
       activeListId,
       lists,
-      showCompleted,
     } = this.state;
 
-    const list = _.find(lists, {id: activeListId});
+    return createElement(App, {
+      activeListId,
+      selectList: this.selectList,
+      lists,
+      requestLists: this.requestLists,
+      addList: this.addList,
+      updateList: this.updateList,
+      deleteList: this.deleteList,
+    });
 
-    if (!list) return (
-      <ListsView
-        lists={lists}
-        selectList={listId => this.selectList(listId)}
-        addList={() => this.addList()}
-        />
-    );
-
-    return (
-      <ListView
-        list={list}
-        updateList={(data) => this.updateList(list.id, data)}
-        deleteList={() => {
-          this.selectList();
-          this.deleteList(list.id);
-        }}
-        showCompleted={showCompleted}
-        toggleShowCompleted={() => this.toggleShowCompleted()}
-        navigateBack={listId => this.selectList()}
-        />
-    )
   }
 }
