@@ -1,5 +1,4 @@
-import React, {Component, createElement} from 'react';
-import _ from 'lodash';
+import React, {Component} from 'react';
 import * as apiClient from '../http/apiClient';
 import {newItem} from '../factories';
 import {ListHeader} from './Header';
@@ -15,26 +14,15 @@ const styles = {
   },
 };
 
-const DRAFT_ID = 'item.DRAFT';
-
 function ListView(props) {
   const {
     list,
     updateList,
     deleteList,
-    saveItem,
-    deleteItem,
-    addItem,
-    drafts,
-    updateDraft,
-    showCompleted,
-    toggleShowCompleted,
     navigateBack,
   } = props;
 
-  const getDraft = id => _.find(drafts, {id}) || {id};
-
-  const visibleItems = (showCompleted)
+  const visibleItems = (props.showCompleted)
     ? list.items
     : list.items.filter(item => !item.completed);
 
@@ -44,31 +32,28 @@ function ListView(props) {
 
       <div className="list-group">
         {visibleItems.map(item => {
-          const draft = {...item, ...getDraft(`item.${item.id}`)};
           return (
             <ListItem
               key={item.id}
               item={item}
-              saveItem={(data) => saveItem(item.id, data)}
-              deleteItem={() => deleteItem(item.id)}
-              draft={draft}
-              updateDraft={(data) => updateDraft(`item.${item.id}`, data)}
+              saveItem={(data) => props.saveItem(item.id, data)}
+              deleteItem={() => props.deleteItem(item.id)}
               />
           );
         })}
 
         <div className="list-group-item">
           <EditingText
-            value={getDraft(DRAFT_ID).name}
-            onChange={(name) => updateDraft(DRAFT_ID, {name})}
-            cancel={() => updateDraft(DRAFT_ID, {name: ''})}
-            save={(name) => addItem({name})}
+            value={props.itemDraft}
+            onChange={props.updateItemDraft}
+            save={() => props.addItem({name: props.itemDraft})}
+            cancel={() => props.updateItemDraft('')}
             />
         </div>
       </div>
 
-      <a onClick={toggleShowCompleted} style={styles.footerLink}>
-        {showCompleted ? 'hide' : 'show'} completed
+      <a onClick={props.toggleShowCompleted} style={styles.footerLink}>
+        {props.showCompleted ? 'hide' : 'show'} completed
       </a>
     </div>
   );
@@ -84,37 +69,33 @@ export default class ListViewContainer extends Component {
     super(props);
     this.state = {
       showCompleted: true,
-      drafts: [
-        {id: DRAFT_ID, name: ''}
-      ],
+      editingList: false,
+      itemDraft: '',
     };
 
     this.saveItem = this.saveItem.bind(this);
     this.deleteItem = this.deleteItem.bind(this);
     this.addItem = this.addItem.bind(this);
-    this.updateDraft = this.updateDraft.bind(this);
     this.toggleShowCompleted = this.toggleShowCompleted.bind(this);
+    this.toggleEditingList = this.toggleEditingList.bind(this);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.list.items.length > this.props.list.items.length) {
+      this.updateItemDraft('');
+    }
+  }
+
+  updateItemDraft(itemDraft) {
+    this.setState({itemDraft})
   }
 
   toggleShowCompleted() {
     this.setState({showCompleted: !this.state.showCompleted});
   }
 
-  // TODO: Consolidate/centralize this...
-  updateDraft(id, data) {
-    let {drafts} = this.state;
-    if (!_.find(drafts, {id})) {
-      drafts = drafts.concat([newItem({id})]);
-    }
-    drafts = drafts
-      .map(draft => (draft.id !== id) ? draft : {...draft, ...data});
-    this.setState({drafts});
-  }
-
-  clearDraft(id) {
-    const drafts = this.state.drafts
-      .filter(entry => entry.id !== id);
-    this.setState({drafts});
+  toggleEditingList() {
+    this.setState({editingList: !this.state.editingList});
   }
 
   addItem(data) {
@@ -124,7 +105,6 @@ export default class ListViewContainer extends Component {
         const item = res.body;
         const items = list.items.concat([item]);
         updateList({items});
-        this.clearDraft(DRAFT_ID);
       })
   }
 
@@ -146,43 +126,27 @@ export default class ListViewContainer extends Component {
             ? item
             : {...item, ...res.body}
           );
-        this.clearDraft(id);
         updateList({items});
       });
   }
 
   render() {
-    const {
-      showCompleted,
-      drafts,
-    } = this.state;
-    const {
-      list,
-      updateList,
-      deleteList,
-      navigateBack,
-    } = this.props;
+    const {showCompleted, editingList} = this.state;
 
-    // Rather than fiddling with JSX to pass down an object
-    //  Example <ListView {...{list, updateList, /* ... */}} />
-    // or
-    //  Example <ListView list={list} updateList={updateList}, /* ... */}} />
-    // We can make use of the fact that the JSX de-sugars to createElement which accepts props as the 2nd argument
-    // See: https://facebook.github.io/react/docs/displaying-data.html#react-without-jsx
-    return createElement(ListView, {
-      list,
-      updateList,
-      deleteList,
+    const props = {
+      showCompleted,
+      toggleShowCompleted: this.toggleShowCompleted,
+      editingList,
+      toggleEditingList: this.toggleEditingList,
       saveItem: this.saveItem,
       deleteItem: this.deleteItem,
       addItem: this.addItem,
-      drafts,
-      updateDraft: this.updateDraft,
-      showCompleted,
-      toggleShowCompleted: this.toggleShowCompleted,
-      navigateBack,
-    });
+      itemDraft: this.state.itemDraft,
+      updateItemDraft: this.updateItemDraft.bind(this),
+      ...this.props,
+    };
 
+    return <ListView {...props} />;
   }
 
 }
